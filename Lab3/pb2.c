@@ -5,17 +5,26 @@ int main()
 {
     int c, pre = '\0';
 
+    int next;
+
     int countWords = 0;
-    int countLines  = 0;
+    int countParagraphs  = 0;
+
+    FILE *f;
+
+    f = fopen("2.in", "r");
 
     while((c = getchar()) != EOF)
     {
-        // line counting does not work
-        if(c == '\n' && isalnum(pre))
-            countLines ++;
+        if(c == '\n')
+        {
+            next = getchar();
 
-        if(c == EOF && isalnum(pre))
-            countLines++;
+            if(next == '\n')
+                countParagraphs ++;
+            
+            ungetc(next, f);
+        }
 
         if(!isspace(c) && (isspace(pre) ||  pre == '\0'))
         {
@@ -25,7 +34,7 @@ int main()
         pre = c;
     }
 
-    printf("%d %d", countWords, countLines);
+    printf("%d %d", countWords, countParagraphs);
 
     return 0;
 }
