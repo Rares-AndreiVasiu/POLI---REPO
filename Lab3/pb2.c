@@ -10,10 +10,6 @@ int main()
     int countWords = 0;
     int countParagraphs  = 0;
 
-    FILE *f;
-
-    f = fopen("2.in", "r");
-
     while((c = getchar()) != EOF)
     {
         if(c == '\n')
@@ -21,9 +17,11 @@ int main()
             next = getchar();
 
             if(next == '\n')
+            {
                 countParagraphs ++;
-            
-            ungetc(next, f);
+                printf("%d %d\n", countWords, countParagraphs);
+            }
+            else ungetc(next, stdin);
         }
 
         if(!isspace(c) && (isspace(pre) ||  pre == '\0'))
@@ -33,8 +31,6 @@ int main()
 
         pre = c;
     }
-
-    printf("%d %d", countWords, countParagraphs);
 
     return 0;
 }
