@@ -5,32 +5,47 @@ int main()
 {
     int c, pre = '\0';
 
-    int next;
-
     int countWords = 0;
-    int countParagraphs  = 0;
+    int countLines = 0;
 
     while((c = getchar()) != EOF)
     {
-        if(c == '\n')
+        if(c == '\n' && isalnum(pre))
         {
-            next = getchar();
+            int next = getchar();
 
-            if(next == '\n')
+            ungetc(next, stdin);
+
+            countLines++;
+
+            if(next == '\n' || next == EOF)
             {
-                countParagraphs ++;
-                printf("%d %d\n", countWords, countParagraphs);
+                printf("Words: %d, Lines: %d\n", countWords, countLines);
+
+                countLines = 0;
+                countWords = 0;
             }
-            else ungetc(next, stdin);
         }
 
-        if(!isspace(c) && (isspace(pre) ||  pre == '\0'))
+        if(!isspace(c) && (isspace(pre) || pre == '\0'))
         {
-            countWords ++;
+            countWords++;
         }
 
         pre = c;
+        // if(c != '\n')
+        //     printf("%d", c);
+        // else
+        // {
+        //     printf("\nNew line %d", c);
+        // }
     }
 
+    if(countWords > 0)
+    {
+        countLines++;
+        
+        printf("Words: %d, Lines: %d\n", countWords, countLines);
+    }
     return 0;
 }
