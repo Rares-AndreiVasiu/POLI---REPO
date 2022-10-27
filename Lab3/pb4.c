@@ -1,82 +1,56 @@
-// use input file as an already file fform lab
 #include <stdio.h>
-#include <ctype.h>
 
-void indent2N(int level)
+// 4. Pretty-printing
+
+void printSpaces(int n)
 {
-    int space = ' ';
+    unsigned int spaces = 2*n;
 
-    for(int i = 1; i <= 2 * level; ++i)
-        putchar(space);
+    for (;spaces != 0; spaces--)
+    {
+        putchar(' ');
+    }
+}
+
+void prettyPrinting()
+{
+    unsigned int c;
+    unsigned int level = 0;
+
+    while ((c = getchar()) != EOF)
+    {
+        if (c == '{')
+        {
+            level++;
+            printf("%c\n", c);
+            printSpaces(level);
+        }
+        else if (c == '}')
+        {
+            level--;
+
+            putchar('\n');
+
+            printSpaces(level);
+
+            printf("%c\n", c);
+            
+        }
+        else if (c == '\n')
+        {
+            putchar(c);
+            printSpaces(level);
+        }
+        else
+        {
+            putchar(c);
+        }
+    }
 }
 
 int main()
 {
-    int braceLevel, character, newLine = '\n', previous;
+    prettyPrinting();
 
-    while((character = getchar()) != EOF)
-    {
-        if(character == '{')
-        {
-            putchar(character);
-            
-            braceLevel++;
-            
-            // new line first rule
-            putchar(newLine);
-
-            character = getchar();
-
-            // skip usless new lines
-            while(character != EOF && character == '\n')
-            {   
-                character = getchar();
-            }
-            
-            if(character != EOF)
-            {
-                ungetc(character, stdin);
-            }
-            else
-            {
-                //we don't need to continue
-                break;
-            }
-        }
-        else
-        {
-            if(character == '}')
-            {
-                braceLevel --;
-
-                putchar(character);
-                
-                putchar(newLine);
-            }
-            else
-            {
-                while(character != EOF)
-                {
-                    if(character == '{')
-                    {
-                        ungetc(character, stdin);
-
-                        break;
-                    }
-                    else
-                    {
-                        if((previous == '}' && isalpha(character)) || previous == '\n')
-                        {
-                            indent2N(braceLevel);
-                        }
-
-                        putchar(character);
-                    }
-                    character = getchar();
-                }
-            }
-        }
-        previous = character;
-    }
     return 0;
 }
