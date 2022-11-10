@@ -1,48 +1,50 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-u_int32_t getBit(u_int32_t n, unsigned k)
+void printBits(u_int32_t n)
 {
-    return ((n & (1u << k)) >> k);
-}
+    int nBits = sizeof(n) * 8;
 
-u_int16_t inserBit(u_int16_t x, unsigned k, unsigned bit)
-{
-    return (x | (1u << k));
-}
-
-u_int16_t bitEvenLeftRight(u_int32_t n)
-{
-    u_int16_t result = 0;
-
-    unsigned nBits = sizeof(n) * 8;
-
-    for(int k = nBits - 2; k >= 0; k -=2)
+    for(int k = nBits - 1; k >= 0; k--)
     {
-        if(((n & (1u << k))) == 0)
+        if((n & (1 << k)) == 0)
         {
-            result ^= (0 << (k / 2));
+            putchar('0');
         }
         else
         {
-            result ^= (1 << (k / 2));
+            putchar('1');
         }
     }
 
-    return result;
+    printf("\n");
 }
 
-u_int16_t bitEvenRightLeft(u_int32_t n)
+unsigned getBit(u_int32_t n, unsigned k)
 {
-    unsigned nBits = sizeof(n) * 8;
+    return ((n & (1 << k)) >> k);
+}
 
+u_int16_t insertBit(u_int16_t n, int k, unsigned bit)
+{
+    return (n | (bit << k));
+}
+
+u_int16_t evenBitLeftRight(u_int32_t n)
+{
     u_int16_t newNumber = 0;
 
-    for(unsigned k = 0; k <= nBits; k += 2)
+    unsigned nBits = sizeof(n) * 8;
+
+    for(int k = nBits - 2; k >= 0; k -= 2)
     {
         unsigned bit = getBit(n, k);
 
-        newNumber = inserBit(newNumber, k / 2, bit);
+        // printf("%d\n", bit);
+        
+        newNumber = insertBit(newNumber, k / 2, bit);
+
+        printBits(newNumber);
     }
 
     return newNumber;
@@ -50,7 +52,13 @@ u_int16_t bitEvenRightLeft(u_int32_t n)
 
 int main()
 {
-    printf("%X\n", bitEvenRightLeft(0x0A12C301));
-
-    return 0;
+    printf("%X\n", evenBitLeftRight(0xFABAFFFF));
 }
+
+/*
+n = FABA FFFF
+31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9  8  7  6  5  4  3  2  1  0
+1  1   1  1  1  0 1  0  1  0  1  1  1  0  1  0  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+=>11 000 1 00 11111111
+
+*/
