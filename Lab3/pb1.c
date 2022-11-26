@@ -1,39 +1,30 @@
 #include <stdio.h>
-#include <ctype.h>
+#include <string.h>
 
 int main()
 {
-    int character;
+    int c;
 
-    char space = ' ';
-
-    while((character = getchar()) != '\n')
+    while((c = getchar()) != EOF)
     {
-        // putchar(character);
-
-        if(character == ' ' && character != '\n')
+        if(c == ' ')
         {
-            while((character = getchar()) != '\n')
-            {
-                if(character != ' ')
-                    break;
-            }
+            while((c = getchar()) == ' ');
 
-            if(character != '\n')
+            if(c == '\n')
             {
-                putchar(space);
-                putchar(character);
+                putchar(c);
             }
             else
             {
-                putchar(character);
+                putchar(' ');
+                ungetc(c, stdin);  
             }
         }
         else
         {
-            putchar(character);
+            putchar(c);
         }
     }
-    
     return 0;
 }
