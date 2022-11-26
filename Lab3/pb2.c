@@ -3,49 +3,49 @@
 
 int main()
 {
-    int c, pre = '\0';
-
-    int countWords = 0;
-    int countLines = 0;
+    int c, words = 0, lines = 0, predecesor;
 
     while((c = getchar()) != EOF)
     {
-        if(c == '\n' && isalnum(pre))
-        {
+        if(c == '\n' && isalpha(predecesor))
+        {   
+            predecesor = '\0';
+            lines ++;
+
             int next = getchar();
 
-            ungetc(next, stdin);
-
-            countLines++;
-
-            if(next == '\n' || next == EOF)
+            if(next == '\n')
             {
-                printf("Words: %d, Lines: %d\n", countWords, countLines);
+                printf("\nLines: %d, Words: %d\n", lines, words);
+                lines = 0;
+                words = 0;
+                
+                ungetc(next, stdin);
 
-                countLines = 0;
-                countWords = 0;
+                while((next = getchar()) != EOF)
+                {
+                    if(next != '\n')
+                    {
+                        ungetc(next, stdin);
+                        break;
+                    }
+                }
             }
         }
-
-        if(!isspace(c) && (isspace(pre) || pre == '\0'))
+        if((isspace(predecesor) || predecesor == '\0') && isalpha(c))
         {
-            countWords++;
+            // printf("%c ", c);
+            words++;
         }
 
-        pre = c;
-        // if(c != '\n')
-        //     printf("%d", c);
-        // else
-        // {
-        //     printf("\nNew line %d", c);
-        // }
+        predecesor = c;
     }
 
-    if(countWords > 0)
+    if(words > 0)
     {
-        countLines++;
-        
-        printf("Words: %d, Lines: %d\n", countWords, countLines);
+        lines++;
+        printf("\nLines: %d, Words: %d", lines, words);
     }
+
     return 0;
 }
