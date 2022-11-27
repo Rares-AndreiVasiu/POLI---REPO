@@ -1,71 +1,104 @@
 #include <stdio.h>
-#include <ctype.h>
 
-void inputError()
+long long ThousandSeparator()
 {
-    printf("Error: input has incorrect position of commas. Try again!\n");
-}
+    int c, currentGroupDigits = 0, firstGroup = 1, validFormat = 1, threeGroup = 0;
+    long long newNumber = 0;
 
-int noCommaPrinting()
-{
-    int c, countDigitsBeforeComma = 0;
-    int flagFirstGroup = 0, falgFormat = 1;
-    int newNumber = 0;
-
-    while((c = getchar()) != '\n' && falgFormat)
+    while((c = getchar()) != '\n')
     {
-        if(isdigit(c))
+        if(c != ',')
         {
-            newNumber = newNumber * 10 + (c - '0');
+            int digit = c - '0';
 
-            countDigitsBeforeComma ++;
+            threeGroup = threeGroup * 10 + digit;
+
+            currentGroupDigits++;
         }
         else
         {
-            if(!flagFirstGroup)
+            // printf("%d\n", currentGroupDigits);
+
+            if(firstGroup)
             {
-                if(countDigitsBeforeComma > 3)
+                if(currentGroupDigits == 1 && threeGroup != 0)
                 {
-                    // inputError();
-                    falgFormat = 0;
+                    newNumber = newNumber * 10 + threeGroup;
                 }
-                flagFirstGroup = 1;
+                else
+                {
+                    if(currentGroupDigits == 2 && threeGroup != 0)
+                    {
+                        newNumber = newNumber * 100 + threeGroup;
+                    }
+                    else
+                    {
+                        if (currentGroupDigits == 3 && threeGroup != 0)
+                        {
+                            newNumber = newNumber * 1000 + threeGroup;
+                        }
+                        else
+                        {
+                            validFormat = 0;
+
+                            printf("\nInvalid Formatting Try Again!\n");
+                            
+                            break;
+                        }
+                    }
+                }
+
+                firstGroup = 0;
             }
             else
             {
-                if(countDigitsBeforeComma != 3)
+                if(currentGroupDigits == 3)
                 {
-                    // inputError();
-                    falgFormat = 0;
+                    newNumber = newNumber * 1000 + threeGroup;
+                }
+                else
+                {
+                    
+                    if(validFormat)
+                    {
+                        printf("\nInvalid Formatting Try Again!\n");
+                    }
+                    
+                    validFormat = 0;  
+                    break;
                 }
             }
-            countDigitsBeforeComma = 0;
+            threeGroup = 0;
+            currentGroupDigits = 0;
         }
     }
+    
+    // printf("%d\n", currentGroupDigits);
 
-    if(falgFormat && countDigitsBeforeComma == 3)
+    if(currentGroupDigits == 3)
     {
-        return newNumber;
+        newNumber = newNumber * 1000 + threeGroup;
     }
     else
     {
-        return -1;
+        if(validFormat)
+        {
+            printf("\nInvalid Formatting Try Again!\n");   
+        }
+        validFormat = 0;                    
+    }                                  
+
+    if(validFormat)
+    {
+        return newNumber;
     }
-    // return falgFormat ? newNumber : countDigitsBeforeComma == 3 ? newNumber : -1;
+
+   return -1;
 }
 
 int main()
 {
-    int number =  noCommaPrinting();
+    long long n = ThousandSeparator();
 
-    if(number != -1)
-    {
-        printf("%d", number);
-    }
-    else
-    {
-        inputError();
-    }
-
-    return 0;
+    printf("%lld\n", n);
 }
