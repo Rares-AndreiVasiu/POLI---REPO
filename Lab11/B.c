@@ -16,7 +16,7 @@ int countAlignedAddresses(int * addr[])
 
     for(int i = 0; addr[i]; ++ i)
     {
-       __uint64_t address = (__uint64_t*)(addr + i);
+       __uint64_t address = (__uint64_t)(addr + i);
 
         if(checkNibble(addres))
         {
