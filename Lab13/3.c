@@ -4,10 +4,9 @@
 
 char *fibonacci_string(unsigned n)
 {
-    // Allocate memory for the first two Fibonacci strings
-    char *s0 = malloc(sizeof(char));
+    char *s0 = malloc(2 * sizeof(char));
 
-    char *s1 = malloc(2 * sizeof(char));
+    char *s1 = malloc(3 * sizeof(char));
 
     if (s0 == NULL || s1 == NULL)
     {
@@ -16,19 +15,16 @@ char *fibonacci_string(unsigned n)
         return NULL;
     }
 
-    // Initialize the 2 Fibonacci strings
-    s0[0] = '0';
+    strcpy(s0, "0");
 
-    s1[0] = '0';
-    s1[1] = '1';
+    strcpy(s1, "01");
 
-
-    if (n == 0)
+    if(n == 0)
     {
         return s0;
     }
 
-    if (n == 1)
+    if(n == 1)
     {
         return s1;
     }
@@ -39,13 +35,14 @@ char *fibonacci_string(unsigned n)
     if (s == NULL)
     {
         fprintf(stderr, "Error: malloc failed\n");
+
         return NULL;
     }
 
-    // Iterate through the Fibonacci strings from Sn-2 to Sn
+    // Iterate through the Fibo strs from Sn-2 to Sn
     for (unsigned i = 2; i <= n; i++)
     {
-        // Concatenate Sn-1 and Sn-2 to get Sn
+        // concatenate S(n-1) and S(n-2)
         strcpy(s, s1);
 
         strcat(s, s0);
@@ -55,12 +52,12 @@ char *fibonacci_string(unsigned n)
 
         s0 = s1;
 
-        // Allocate memory for the next Fibonacci string
+        // Allocate memory for next Fibonacci string
         s1 = malloc((i + 2) * sizeof(char));
 
-        if (s1 == NULL)
+        if (!s1)
         {
-            fprintf(stderr, "Error memory allocation failed\n");
+            fprintf(stderr, "Error memory allocation fail!!\n");
 
             free(s);
             
@@ -71,16 +68,20 @@ char *fibonacci_string(unsigned n)
         strcpy(s1, s);
     }
 
-    // Free the memory used by Sn-1
+    // Free the memory of Sn-1
     free(s1);
 
-    // Return the nth Fibonacci string
     return s;
 }
 
 int main()
 {
-    printf("%s\n", fibonacci_string(1));
-    printf("%s\n", fibonacci_string(3));
-    printf("%s\n", fibonacci_string(2));
+    int n; 
+
+    for(int i = 0; i <= n; ++ i)
+    {
+        printf("%s\n", fibonacci_string(i));
+    }
+
+    return 0;
 }
