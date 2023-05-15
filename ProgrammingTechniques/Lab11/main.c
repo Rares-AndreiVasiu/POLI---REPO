@@ -1,105 +1,220 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <stdbool.h>
 
-#define MAXLINES 1000
-#define MAXROWS 1000
+#define MAXSIZE 4096
+#define DBG 0
 
-typedef struct _point
+int a[MAXSIZE][MAXSIZE];
+
+const int di[] = {0, 0, 1, -1};
+const int dj[] = {1, -1, 0, 0};
+
+bool foundTrack = false;
+
+bool inside(int i, int j, int rows, int cols)
 {
-    int x;
-    int y;
+    return i >= 0 && i < rows && j >= 0 && j < cols;
+}
 
-} point;
+void move(int i, int j, int step, int rows, int cols, int iend, int jend)
+{
+    for(int d = 0; d < 4 && !foundTrack; ++ d)
+    {
+        int newI = i + di[d];
 
-char M[MAXLINES][MAXROWS];
+        int newJ = j + dj[d];
+
+        printf("%d %d\n", newI, newJ);
+
+        if(inside(newI, newJ, rows, cols) && a[newI][newI] == 0)
+        {
+            a[newI][newJ] = step;
+
+            if(newI == iend && newJ == jend)
+            {
+                foundTrack = true;
+            }
+            else
+            {
+                move(newI, newJ, step + 1, rows, cols, iend, jend);
+            }
+
+            a[newI][newJ] = 0;
+        }
+    }
+}
 
 int main(int argc, char *argv[])
 {
-    FILE *f;
-
-    if (argc <= 1)
+    if (argc < 2)
     {
-        printf("there aren't enough arguments to run the programm!");
+        perror("Not enough arguments from commandline!");
 
         exit(EXIT_FAILURE);
     }
 
-    f = fopen(argv[1], "r");
+    char buffer[MAXSIZE];
 
-    if (!f)
+    FILE *fp = fopen(argv[1], "r");
+
+    if (!fp)
     {
-        printf("Error while opening the input file!");
+        perror("Error while opening the file!");
 
         exit(EXIT_FAILURE);
     }
 
-    point start, end;
+    fgets(buffer, MAXSIZE - 1, fp);
 
-    int cols = 0, rows = 0;
+#if DBG == 1
+    printf("Print first line: %s\n", buffer);
+#endif
 
-    char firstLine[MAXLINES], buffer[MAXLINES];
+    const char *ptr = strrchr(buffer, '#');
 
-    fgets(firstLine, MAXLINES - 1, f);
+    /*
+        this is stricly the number of the #, ' ', 'E', 'S' max per line
+        without including the '\0' at the end
+    */
+    int rows = 1; // because we already read a line
+    int columns = 0;
+    int index = 0;
+    int istart, jstart;
+    int iend, jend;
 
-    cols = strrchr(firstLine, '#') - firstLine + 1;
+    columns = (ptr - buffer) + 1;
 
-    printf("Cols: %d\n", cols);
-
-    strncpy(M[rows++], firstLine, cols);
-
-    // printf("%s\n\n", M[1]);
-
-    while (!feof(f))
+    while (!feof(fp))
     {
-        if (fgets(buffer, cols, f) != NULL)
+        if (fgets(buffer, columns + 1, fp) != NULL)
         {
-            strncpy(M[rows++], buffer, cols);
-
-            if(strchr(M[rows - 1], 'E'))
+            if (strchr(buffer, '#'))
             {
-                puts("We have found the end pos!");
+                rows++;
 
-                printf("At line: %d\n", rows - 1);
-            }
-        }
-        else
-        {
-            printf("Error while reading the file!");
-
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    printf("Rows: %d\n", rows);
-
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j = 0; j < cols; ++j)
-        {
-            printf("%c", M[i][j]);
-
-            if(M[i][j] == 'S')
-            {
-                start.x = i;
-                start.y = j;
-            }
-
-            if (M[i][j] == 'E')
-            {
-                end.x = i;
-
-                end.y = j;
-
-                printf("\n%d %d\n", end.x, end.y);
-                return 0;
+#if DBG == 1
+                printf("Print lines: %s\n", buffer);
+#endif
             }
         }
     }
 
-    printf("%s\n", M[start.x]);
+    // we have the # of rows & cols
+    char maze[rows][columns + 1];
 
-    printf("\nStart: %d %d, End: %d %d\n", start.x, start.y, end.x, end.y);
+#if DBG == 1
+    printf("Rows: %d and Columns: %d\n", rows, columns);
+#endif
+
+    fseek(fp, 0, SEEK_SET); // we go back to the beginning to the file
+
+    while (!feof(fp))
+    {
+        if (fgets(buffer, columns + 1, fp) != NULL)
+        {
+            if (strchr(buffer, '#'))
+            {
+                strncpy(maze[index], buffer, columns + 1);
+
+                maze[index][columns + 1] = '\0';
+
+#if DBG == 1
+                printf("Print correct line:%s\n", maze[index]);
+#endif
+
+                index++;
+            }
+        }
+    }
+
+    for(int i = 0; i < rows; ++ i)
+    {
+        for(int j = 0; j < columns; ++ j)
+        {
+
+            switch (maze[i][j])
+            {
+                case ' ':
+                {
+                    a[i][j] = 0;
+                    break;
+                }
+
+                case '#':
+                {
+                    a[i][j] = -1;
+                    break;
+                }
+
+                case 'S':
+                {
+                    a[i][j] = 0;
+
+                    istart = i;
+
+                    jstart = j;
+
+                    break;  
+                }
+
+                case 'E':
+                {
+                    a[i][j] = 0;
+
+                    iend = i;
+
+                    jend = j;
+
+                    break;
+                }
+            }
+        }
+    }
+
+    a[istart][jstart] = 1;
+
+    for(int i = 0; i < rows; ++ i, printf("\n"))
+    {
+        for(int j = 0; j < columns; ++ j)
+        {
+            printf("%d ", a[i][j]);
+        }
+    }
+
+    printf("I end: %d, J end: %d\n", iend, jend);
+
+    // printf("%d\n", inside(-1, 0, rows, columns));
+    // printf("%d\n", inside(0, 0, rows, columns));
+    // printf("%d\n", inside(rows + 1, 0, rows, columns));
+
+    move(istart, jstart, 2, rows, columns, iend, jend);
+
+    #if DBG == 1
+    printf("Start position is at: %d %d\n", start.x, start.y);
+    #endif
+
+    if(foundTrack)
+    {
+        for(int i = 0; i < rows; ++ i, printf("\n"))
+        {
+            for(int j = 0; j < columns; ++ j)
+            {
+                if(a[i][j] == -1)
+                {
+                    printf("0 ");
+                }
+                else
+                {
+                    printf("%d ", a[i][j]);
+                }
+            }
+        }
+    }
+
+    printf("%d\n", foundTrack);
 
     return 0;
 }
