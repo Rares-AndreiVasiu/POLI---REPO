@@ -19,28 +19,47 @@ bool inside(int i, int j, int rows, int cols)
     return i >= 0 && i < rows && j >= 0 && j < cols;
 }
 
+void print(int rows, int columns)
+{
+    for (int i = 0; i < rows; ++i, printf("\n"))
+        {
+            for (int j = 0; j < columns; ++j)
+            {
+                if (a[i][j] == -1)
+                {
+                    printf("#");
+                }
+                else
+                {
+                    printf("%d", a[i][j]);
+                }
+            }
+        }
+}
 void move(int i, int j, int step, int rows, int cols, int iend, int jend)
 {
-    for(int d = 0; d < 4 && !foundTrack; ++ d)
+    for (int d = 0; d < 4 && !foundTrack; ++d)
     {
-        printf("Before=> i: %d,  j: %d, inside: %d, a[i][j]: %d\n", i, j,
-        inside(i, j, rows, cols), a[i][j]);
+        // printf("Before=> i: %d,  j: %d, inside: %d, a[i][j]: %d\n", i, j,
+        // inside(i, j, rows, cols), a[i][j]);
 
         int newI = i + di[d];
 
         int newJ = j + dj[d];
 
-        printf("i: %d,  j: %d, inside: %d, a[i][j]: %d\n", newI, newJ,
-        inside(newI, newJ, rows, cols), a[newI][newJ]);
+        // printf("newI: %d,  newJ: %d, inside: %d, a[i][j]: %d\n", newI, newJ,
+        //        inside(newI, newJ, rows, cols), a[newI][newJ]);
 
-        if(inside(newI, newJ, rows, cols) && a[newI][newI] == 0)
+        if (inside(newI, newJ, rows, cols) && a[newI][newJ] == 0)
         {
-            printf("Valid coord: %d %d\n", newI, newJ);
+            // printf("Valid coord: %d %d\n", newI, newJ);
             a[newI][newJ] = step;
 
-            if(newI == iend && newJ == jend)
+            if (newI == iend && newJ == jend)
             {
                 foundTrack = true;
+
+                print(rows, cols);
             }
             else
             {
@@ -135,61 +154,61 @@ int main(int argc, char *argv[])
         }
     }
 
-    for(int i = 0; i < rows; ++ i)
+    for (int i = 0; i < rows; ++i)
     {
-        for(int j = 0; j < columns; ++ j)
+        for (int j = 0; j < columns; ++j)
         {
             switch (maze[i][j])
             {
-                case ' ':
-                {
-                    a[i][j] = 0;
-                    break;
-                }
+            case ' ':
+            {
+                a[i][j] = 0;
+                break;
+            }
 
-                case '#':
-                {
-                    a[i][j] = -1;
-                    break;
-                }
+            case '#':
+            {
+                a[i][j] = -1;
+                break;
+            }
 
-                case 'S':
-                {
-                    a[i][j] = 0;
+            case 'S':
+            {
+                a[i][j] = 0;
 
-                    istart = i;
+                istart = i;
 
-                    jstart = j;
+                jstart = j;
 
-                    break;  
-                }
+                break;
+            }
 
-                case 'E':
-                {
-                    a[i][j] = 0;
+            case 'E':
+            {
+                a[i][j] = 0;
 
-                    iend = i;
+                iend = i;
 
-                    jend = j;
+                jend = j;
 
-                    break;
-                }
+                break;
+            }
             }
         }
-    }   
+    }
 
     // printf("a[istart][jstart]: %d\n", a[istart][jstart]);
-    
 
     a[istart][jstart] = 1;
 
     // printf("a[istart][jstart]: %d\n", a[istart][jstart]);
 
-    for(int i = 0; i < rows; ++ i, printf("\n"))
+#if DBG == 1
+    for (int i = 0; i < rows; ++i, printf("\n"))
     {
-        for(int j = 0; j < columns; ++ j)
+        for (int j = 0; j < columns; ++j)
         {
-            if(a[i][j] == -1)
+            if (a[i][j] == -1)
             {
                 putchar('#');
             }
@@ -209,31 +228,18 @@ int main(int argc, char *argv[])
     // printf("%d\n", inside(0, 0, rows, columns));
     // printf("%d\n", inside(rows + 1, 0, rows, columns));
 
+#endif
+
     move(istart, jstart, 2, rows, columns, iend, jend);
 
-    #if DBG == 1
+#if DBG == 1
     printf("Start position is at: %d %d\n", start.x, start.y);
-    #endif
+#endif
 
-    if(foundTrack)
+    if (!foundTrack)
     {
-        for(int i = 0; i < rows; ++ i, printf("\n"))
-        {
-            for(int j = 0; j < columns; ++ j)
-            {
-                if(a[i][j] == -1)
-                {
-                    printf("#");
-                }
-                else
-                {
-                    printf("%d", a[i][j]);
-                }
-            }
-        }
+        printf("There is now way out! You are forever trapped!");
     }
-
-    printf("%d\n", foundTrack);
 
     return 0;
 }
