@@ -23,14 +23,19 @@ void move(int i, int j, int step, int rows, int cols, int iend, int jend)
 {
     for(int d = 0; d < 4 && !foundTrack; ++ d)
     {
+        printf("Before=> i: %d,  j: %d, inside: %d, a[i][j]: %d\n", i, j,
+        inside(i, j, rows, cols), a[i][j]);
+
         int newI = i + di[d];
 
         int newJ = j + dj[d];
 
-        printf("%d %d\n", newI, newJ);
+        printf("i: %d,  j: %d, inside: %d, a[i][j]: %d\n", newI, newJ,
+        inside(newI, newJ, rows, cols), a[newI][newJ]);
 
         if(inside(newI, newJ, rows, cols) && a[newI][newI] == 0)
         {
+            printf("Valid coord: %d %d\n", newI, newJ);
             a[newI][newJ] = step;
 
             if(newI == iend && newJ == jend)
@@ -134,7 +139,6 @@ int main(int argc, char *argv[])
     {
         for(int j = 0; j < columns; ++ j)
         {
-
             switch (maze[i][j])
             {
                 case ' ':
@@ -172,20 +176,35 @@ int main(int argc, char *argv[])
                 }
             }
         }
-    }
+    }   
+
+    // printf("a[istart][jstart]: %d\n", a[istart][jstart]);
+    
 
     a[istart][jstart] = 1;
+
+    // printf("a[istart][jstart]: %d\n", a[istart][jstart]);
 
     for(int i = 0; i < rows; ++ i, printf("\n"))
     {
         for(int j = 0; j < columns; ++ j)
         {
-            printf("%d ", a[i][j]);
+            if(a[i][j] == -1)
+            {
+                putchar('#');
+            }
+            else
+            {
+                printf("%d", a[i][j]);
+            }
         }
     }
 
+    printf("I start: %d, J start: %d\n", istart, jstart);
+
     printf("I end: %d, J end: %d\n", iend, jend);
 
+    printf("a[1][2]: %d, a[1][0]: %d, a[2][1]: %d, a[0][1]: %d\n", a[1][2], a[1][0], a[2][1], a[0][1]);
     // printf("%d\n", inside(-1, 0, rows, columns));
     // printf("%d\n", inside(0, 0, rows, columns));
     // printf("%d\n", inside(rows + 1, 0, rows, columns));
@@ -204,11 +223,11 @@ int main(int argc, char *argv[])
             {
                 if(a[i][j] == -1)
                 {
-                    printf("0 ");
+                    printf("#");
                 }
                 else
                 {
-                    printf("%d ", a[i][j]);
+                    printf("%d", a[i][j]);
                 }
             }
         }
