@@ -19,51 +19,54 @@ bool inside(int i, int j, int rows, int cols)
     return i >= 0 && i < rows && j >= 0 && j < cols;
 }
 
-void print(int rows, int columns)
+void print(int rows, int columns, const char *str)
 {
-    for (int i = 0; i < rows; ++i, printf("\n"))
+    FILE *fout = fopen(str, "w");
+
+    if (!fout)
+    {
+        perror("Error while opening the file!");
+
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < rows; ++i, fprintf(fout, "\n"))
+    {
+        for (int j = 0; j < columns; ++j)
         {
-            for (int j = 0; j < columns; ++j)
+            if (a[i][j] == -1)
             {
-                if (a[i][j] == -1)
-                {
-                    printf("#");
-                }
-                else
-                {
-                    printf("%d", a[i][j]);
-                }
+                fprintf(fout, "#");
+            }
+            else
+            {
+                fprintf(fout, "%d", a[i][j]);
             }
         }
+    }
 }
-void move(int i, int j, int step, int rows, int cols, int iend, int jend)
+
+void move(int i, int j, int step, int rows, int cols, int iend, int jend, const char *str)
 {
     for (int d = 0; d < 4 && !foundTrack; ++d)
     {
-        // printf("Before=> i: %d,  j: %d, inside: %d, a[i][j]: %d\n", i, j,
-        // inside(i, j, rows, cols), a[i][j]);
-
         int newI = i + di[d];
 
         int newJ = j + dj[d];
 
-        // printf("newI: %d,  newJ: %d, inside: %d, a[i][j]: %d\n", newI, newJ,
-        //        inside(newI, newJ, rows, cols), a[newI][newJ]);
-
         if (inside(newI, newJ, rows, cols) && a[newI][newJ] == 0)
         {
-            // printf("Valid coord: %d %d\n", newI, newJ);
             a[newI][newJ] = step;
 
             if (newI == iend && newJ == jend)
             {
                 foundTrack = true;
 
-                print(rows, cols);
+                print(rows, cols, str);
             }
             else
             {
-                move(newI, newJ, step + 1, rows, cols, iend, jend);
+                move(newI, newJ, step + 1, rows, cols, iend, jend, str);
             }
 
             a[newI][newJ] = 0;
@@ -73,7 +76,7 @@ void move(int i, int j, int step, int rows, int cols, int iend, int jend)
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2)
+    if (argc < 3)
     {
         perror("Not enough arguments from commandline!");
 
@@ -92,10 +95,6 @@ int main(int argc, char *argv[])
     }
 
     fgets(buffer, MAXSIZE - 1, fp);
-
-#if DBG == 1
-    printf("Print first line: %s\n", buffer);
-#endif
 
     const char *ptr = strrchr(buffer, '#');
 
@@ -118,20 +117,12 @@ int main(int argc, char *argv[])
             if (strchr(buffer, '#'))
             {
                 rows++;
-
-#if DBG == 1
-                printf("Print lines: %s\n", buffer);
-#endif
             }
         }
     }
 
     // we have the # of rows & cols
     char maze[rows][columns + 1];
-
-#if DBG == 1
-    printf("Rows: %d and Columns: %d\n", rows, columns);
-#endif
 
     fseek(fp, 0, SEEK_SET); // we go back to the beginning to the file
 
@@ -144,10 +135,6 @@ int main(int argc, char *argv[])
                 strncpy(maze[index], buffer, columns + 1);
 
                 maze[index][columns + 1] = '\0';
-
-#if DBG == 1
-                printf("Print correct line:%s\n", maze[index]);
-#endif
 
                 index++;
             }
@@ -197,49 +184,32 @@ int main(int argc, char *argv[])
         }
     }
 
-    // printf("a[istart][jstart]: %d\n", a[istart][jstart]);
-
     a[istart][jstart] = 1;
 
-    // printf("a[istart][jstart]: %d\n", a[istart][jstart]);
+    FILE *fout = fopen(argv[2], "w");
 
-#if DBG == 1
-    for (int i = 0; i < rows; ++i, printf("\n"))
+    if (!fout)
     {
-        for (int j = 0; j < columns; ++j)
-        {
-            if (a[i][j] == -1)
-            {
-                putchar('#');
-            }
-            else
-            {
-                printf("%d", a[i][j]);
-            }
-        }
+        perror("Error while opening the file!");
+
+        exit(EXIT_FAILURE);
     }
 
-    printf("I start: %d, J start: %d\n", istart, jstart);
+    fclose(fout);
 
-    printf("I end: %d, J end: %d\n", iend, jend);
-
-    printf("a[1][2]: %d, a[1][0]: %d, a[2][1]: %d, a[0][1]: %d\n", a[1][2], a[1][0], a[2][1], a[0][1]);
-    // printf("%d\n", inside(-1, 0, rows, columns));
-    // printf("%d\n", inside(0, 0, rows, columns));
-    // printf("%d\n", inside(rows + 1, 0, rows, columns));
-
-#endif
-
-    move(istart, jstart, 2, rows, columns, iend, jend);
-
-#if DBG == 1
-    printf("Start position is at: %d %d\n", start.x, start.y);
-#endif
+    move(istart, jstart, 2, rows, columns, iend, jend, argv[2]);
 
     if (!foundTrack)
     {
-        printf("There is now way out! You are forever trapped!");
-    }
+        FILE *fout = fopen(argv[2], "w");
 
+        if (!fout)
+        {
+            perror("Error while opening the file!");
+
+            exit(EXIT_FAILURE);
+        }
+        fprintf(fout, "There is now way out! You are forever trapped!");
+    }
     return 0;
 }
